@@ -1,0 +1,48 @@
+Device : cuda:0
+Running hyperparameter sweeps  (10 epochs each)
+
+  Param                                    Value    RMSE      MAE    MAPE%
+----------------------------------------------------------------------
+  Learning Rate                            1e-05     72.49     68.03   40.26
+  Learning Rate                            1e-04     64.13     57.39   32.56
+  Learning Rate                            1e-03     42.23     37.67   21.36
+  Learning Rate                            1e-02    126.84    118.80   69.99
+  Learning Rate                            1e-01    127.36    119.36   70.36
+  Learning Rate                            1e+00    125.39    117.25   68.97
+
+  Hidden Size                                  4    109.29    100.97   58.75
+  Hidden Size                                 16     91.70     82.68   47.11
+  Hidden Size                                 64     65.54     59.21   33.84
+  Hidden Size                                128     22.69     20.10   11.41
+  Hidden Size                                256    128.70    120.80   71.32
+  Hidden Size                                512    137.15    131.97   80.27
+
+  Stacked Layers (Seq. Depth)                  1     11.21      8.95    4.97
+  Stacked Layers (Seq. Depth)                  2     42.74     38.38   21.87
+  Stacked Layers (Seq. Depth)                  3    166.26    160.20   97.33
+  Stacked Layers (Seq. Depth)                  4    127.41    119.15   70.12
+  Stacked Layers (Seq. Depth)                  6    127.01    118.99   70.12
+  Stacked Layers (Seq. Depth)                  8    158.14    151.77   91.77
+
+========================================================================
+HYPERPARAMETER SWEEP – SUMMARY TABLE
+========================================================================
+             Hyperparameter Value        MSE     RMSE      MAE  MAPE (%)
+              Learning Rate 1e-05  5255.2667  72.4932  68.0340   40.2639
+              Learning Rate 1e-03  1783.6646  42.2335  37.6734   21.3616
+              Learning Rate 1e-02 16087.4389 126.8363 118.8010   69.9931
+              Learning Rate 1e-01 16220.5750 127.3600 119.3600   70.3622
+              Learning Rate 1e+00 15722.1714 125.3881 117.2536   68.9712
+                Hidden Size     4 11943.4940 109.2863 100.9706   58.7461
+                Hidden Size    16  8408.4668  91.6977  82.6777   47.1056
+                Hidden Size    64  4295.6535  65.5412  59.2107   33.8415
+                Hidden Size   128   514.7299  22.6877  20.0986   11.4113
+                Hidden Size   256 16564.1936 128.7020 120.7976   71.3152
+                Hidden Size   512 18810.9327 137.1530 131.9675   80.2688
+Stacked Layers (Seq. Depth)     1   125.6890  11.2111   8.9513    4.9661
+Stacked Layers (Seq. Depth)     2  1826.4630  42.7371  38.3818   21.8722
+Stacked Layers (Seq. Depth)     3 27640.9561 166.2557 160.2013   97.3265
+Stacked Layers (Seq. Depth)     4 16233.1842 127.4095 119.1506   70.1173
+Stacked Layers (Seq. Depth)     6 16132.5858 127.0141 118.9906   70.1182
+Stacked Layers (Seq. Depth)     8 25009.3920 158.1436 151.7749   91.7682
+========================================================================

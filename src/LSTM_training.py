@@ -138,7 +138,7 @@ class LSTM(nn.Module):
         out = self.fc(out[:, -1, :])
         return out
     
-model = LSTM(1, 64 , 2)
+model = LSTM(1, 128 , 1)
 model.to(device)
 print(model)
 
@@ -190,8 +190,8 @@ def validate_one_epoch():
     print()
     return avg_loss_across_batches
 
-learning_rate = 0.001
-num_epochs = 20
+learning_rate = 1e-03
+num_epochs = 10
 loss_function = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
