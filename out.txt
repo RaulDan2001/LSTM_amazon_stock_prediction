@@ -1,0 +1,182 @@
+(LSTM) PS E:\school\Masterat\Calcul Neuronal\LSTM_air_prediction> & C:\Users\rauld\.conda\envs\LSTM\python.exe "e:/school/Masterat/Calcul Neuronal/LSTM_air_prediction/src/test.py"
+[[-2.59723809 -2.58334452 -2.58334452 ... -2.46021011 -2.44809656
+  -2.32363512]
+ [-2.56287253 -2.59723809 -2.58334452 ... -2.50383261 -2.46021011
+  -2.44809656]
+ [-2.57990764 -2.56287253 -2.59723809 ... -2.64010185 -2.50383261
+  -2.46021011]
+ ...
+ [ 5.47403382  5.4771328   5.45677304 ...  5.42137536  5.43929595
+   5.44578864]
+ [ 5.4999512   5.47403382  5.4771328  ...  5.40510683  5.42137536
+   5.43929595]
+ [ 5.49310257  5.4999512   5.47403382 ...  5.40519672  5.40510683
+   5.42137536]]
+(5033, 30) (1079, 30) (5033, 1) (1079, 1)
+(5033, 30, 1) (1079, 30, 1) (5033, 1) (1079, 1)
+torch.Size([5033, 30, 1]) torch.Size([1079, 30, 1]) torch.Size([5033, 1]) torch.Size([1079, 1])
+torch.Size([16, 30, 1]) torch.Size([16, 1])
+LSTM(
+  (lstm): LSTM(1, 64, num_layers=2, batch_first=True, dropout=0.2)
+  (dropout): Dropout(p=0.2, inplace=False)
+  (fc): Linear(in_features=64, out_features=1, bias=True)
+)
+Epoch: 1
+Batch 100, Average Loss: 0.093
+Batch 200, Average Loss: 0.017
+Batch 300, Average Loss: 0.002
+
+Val Loss: 0.035
+*******************************************
+
+Epoch: 2
+Batch 100, Average Loss: 0.079
+Batch 200, Average Loss: 0.013
+Batch 300, Average Loss: 0.004
+
+Val Loss: 0.062
+*******************************************
+
+Epoch: 3
+Batch 100, Average Loss: 0.275
+Batch 200, Average Loss: 0.031
+Batch 300, Average Loss: 0.036
+
+Val Loss: 0.077
+*******************************************
+
+Epoch: 4
+Batch 100, Average Loss: 0.335
+Batch 200, Average Loss: 0.028
+Batch 300, Average Loss: 0.057
+
+Val Loss: 0.068
+*******************************************
+
+Epoch: 5
+Batch 100, Average Loss: 0.385
+Batch 200, Average Loss: 0.025
+Batch 300, Average Loss: 0.033
+
+Val Loss: 0.071
+*******************************************
+
+Epoch: 6
+Batch 100, Average Loss: 0.463
+Batch 200, Average Loss: 0.028
+Batch 300, Average Loss: 0.107
+
+Val Loss: 0.060
+*******************************************
+
+Epoch: 7
+Batch 100, Average Loss: 0.411
+Batch 200, Average Loss: 0.020
+Batch 300, Average Loss: 0.128
+
+Val Loss: 0.311
+*******************************************
+
+Epoch: 8
+Batch 100, Average Loss: 0.353
+Batch 200, Average Loss: 0.018
+Batch 300, Average Loss: 0.105
+
+Val Loss: 0.260
+*******************************************
+
+Epoch: 9
+Batch 100, Average Loss: 0.303
+Batch 200, Average Loss: 0.021
+Batch 300, Average Loss: 0.042
+
+Val Loss: 0.078
+*******************************************
+
+Epoch: 10
+Batch 100, Average Loss: 0.217
+Batch 200, Average Loss: 0.009
+Batch 300, Average Loss: 0.003
+
+Val Loss: 0.058
+*******************************************
+
+Epoch: 11
+Batch 100, Average Loss: 0.097
+Batch 200, Average Loss: 0.003
+Batch 300, Average Loss: 0.002
+
+Val Loss: 0.059
+*******************************************
+
+Epoch: 12
+Batch 100, Average Loss: 0.040
+Batch 200, Average Loss: 0.001
+Batch 300, Average Loss: 0.001
+
+Val Loss: 0.054
+*******************************************
+
+Epoch: 13
+Batch 100, Average Loss: 0.013
+Batch 200, Average Loss: 0.001
+Batch 300, Average Loss: 0.001
+
+Val Loss: 0.042
+*******************************************
+
+Epoch: 14
+Batch 100, Average Loss: 0.010
+Batch 200, Average Loss: 0.001
+Batch 300, Average Loss: 0.001
+
+Val Loss: 0.046
+*******************************************
+
+Epoch: 15
+Batch 100, Average Loss: 0.003
+Batch 200, Average Loss: 0.001
+Batch 300, Average Loss: 0.001
+
+Val Loss: 0.045
+*******************************************
+
+Epoch: 16
+Batch 100, Average Loss: 0.003
+Batch 200, Average Loss: 0.000
+Batch 300, Average Loss: 0.001
+
+Val Loss: 0.039
+*******************************************
+
+Epoch: 17
+Batch 100, Average Loss: 0.002
+Batch 200, Average Loss: 0.001
+Batch 300, Average Loss: 0.001
+
+Val Loss: 0.038
+*******************************************
+
+Epoch: 18
+Batch 100, Average Loss: 0.002
+Batch 200, Average Loss: 0.000
+Batch 300, Average Loss: 0.001
+
+Val Loss: 0.038
+*******************************************
+
+Epoch: 19
+Batch 100, Average Loss: 0.002
+Batch 200, Average Loss: 0.000
+Batch 300, Average Loss: 0.001
+
+Val Loss: 0.038
+*******************************************
+
+Epoch: 20
+Batch 100, Average Loss: 0.002
+Batch 200, Average Loss: 0.000
+Batch 300, Average Loss: 0.001
+
+Val Loss: 0.038
+*******************************************
