@@ -2,12 +2,14 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.gridspec as gridspec
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from pathlib import Path
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import Dataset
+from copy import deepcopy as dc
 
 # read the csv
 # Read dataset from project-relative path to avoid hardcoded machine-specific paths.
@@ -20,8 +22,6 @@ device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 # handle the date column
 data['Date'] = pd.to_datetime(data['Date'])
 data = data.sort_values('Date').reset_index(drop=True)
-
-from copy import deepcopy as dc
 
 def prepare_dataframe_for_lstm(df: pd.DataFrame, n_steps: int) -> pd.DataFrame:
     df = dc(df)
@@ -147,6 +147,7 @@ def train_one_epoch():
     print(f'Epoch: {epoch + 1}')
     # it is a tensor with value
     running_loss = 0.0
+    total_loss   = 0.0
 
     for batch_index, batch in enumerate(train_loader):
         x_batch, y_batch = batch[0].to(device), batch[1].to(device)
@@ -154,6 +155,7 @@ def train_one_epoch():
         output = model(x_batch)
         loss = loss_function(output, y_batch)
         running_loss += loss.item()
+        total_loss   += loss.item()
         # returns the gradients to 0
         optimizer.zero_grad()
         # do a backward probagation throug the loss to calculate the gradient
@@ -166,6 +168,7 @@ def train_one_epoch():
             print(f'Batch {batch_index+1}, Average Loss: {avg_loss_across_batches:.3f}')
             running_loss = 0.0
     print()
+    return total_loss / len(train_loader)
 
 def validate_one_epoch():
     # put the model in evaluation mode
@@ -185,15 +188,32 @@ def validate_one_epoch():
     print(f'Val Loss: {avg_loss_across_batches:.3f}')
     print("*******************************************")
     print()
+    return avg_loss_across_batches
 
 learning_rate = 0.001
 num_epochs = 20
 loss_function = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
+train_losses = []
+val_losses   = []
+
 for epoch in range(num_epochs):
-    train_one_epoch()
-    validate_one_epoch()
+    train_loss = train_one_epoch()
+    val_loss   = validate_one_epoch()
+    train_losses.append(train_loss)
+    val_losses.append(val_loss)
+
+# ─── Metrics ────────────────────────────────────────────────────────────────
+# The scaler was fit on the full (n, lookback+1) matrix, so to invert just the
+# first column (the target) we pad dummy zeros for the remaining columns.
+num_features = shifted_df_as_np.shape[1]
+
+def inverse_transform_col0(arr: np.ndarray) -> np.ndarray:
+    """Inverse-transform a 1-D array that lived in column 0 of the scaled matrix."""
+    dummy = np.zeros((len(arr), num_features))
+    dummy[:, 0] = arr.flatten()
+    return scaler.inverse_transform(dummy)[:, 0]
 
 val_dates = data['Date'].iloc[lookback + test_split:].values
 
@@ -201,15 +221,88 @@ val_dates = data['Date'].iloc[lookback + test_split:].values
 with torch.no_grad():
     predicted = model(X_val.to(device)).to('cpu').numpy()
 
-plt.figure(figsize=(12, 5))
-plt.plot(val_dates, Y_val, label='Actual Close')
-plt.plot(val_dates, predicted, label='Predicted Close')
-plt.xlabel('Day')
-plt.ylabel('Close')
-plt.title('Validation Predictions')
-plt.legend()
-ax = plt.gca()
-ax.xaxis.set_major_locator(mdates.AutoDateLocator())
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-plt.xticks(rotation=45)
+# Back to log(Close), then exponentiate to get actual USD price
+Y_val_price  = np.exp(inverse_transform_col0(Y_val.numpy()))
+pred_price   = np.exp(inverse_transform_col0(predicted))
+
+# ── Four regression metrics ──────────────────────────────────────────────────
+#
+#  MSE  (Mean Squared Error)
+#    Average of squared differences between prediction and truth.
+#    Heavily penalises large errors; same unit as Close².
+#
+#  RMSE (Root Mean Squared Error)
+#    Square root of MSE → same unit as Close (USD).
+#    Easier to interpret: "on average, predictions are off by $X".
+#
+#  MAE  (Mean Absolute Error)
+#    Average absolute difference. Less sensitive to outliers than RMSE.
+#    Also in USD — directly readable as average dollar error.
+#
+#  MAPE (Mean Absolute Percentage Error)
+#    MAE expressed as a percentage of the actual value.
+#    Scale-independent; useful for comparing across different stocks/assets.
+#
+mse  = float(np.mean((Y_val_price - pred_price) ** 2))
+rmse = float(np.sqrt(mse))
+mae  = float(np.mean(np.abs(Y_val_price - pred_price)))
+mape = float(np.mean(np.abs((Y_val_price - pred_price) / Y_val_price)) * 100)
+
+print('\nValidation Metrics (original USD price scale):')
+print(f'  MSE  = {mse:.4f}')
+print(f'  RMSE = {rmse:.4f}')
+print(f'  MAE  = {mae:.4f}')
+print(f'  MAPE = {mape:.4f} %')
+
+fig = plt.figure(figsize=(18, 9))
+fig.suptitle('LSTM Amazon Stock Price - Validation Metrics', fontsize=14, fontweight='bold')
+
+gs = gridspec.GridSpec(2, 4, figure=fig, hspace=0.50, wspace=0.38)
+
+# ── Top-left (spans 3 cols): time-series prediction ─────────────────────────
+ax_ts = fig.add_subplot(gs[0, :3])
+ax_ts.plot(val_dates, Y_val_price, label='Actual Close',    color='steelblue',  linewidth=1.5)
+ax_ts.plot(val_dates, pred_price,  label='Predicted Close', color='tomato',     linewidth=1.5, linestyle='--')
+ax_ts.set_title('Actual vs Predicted (validation set)')
+ax_ts.set_xlabel('Date')
+ax_ts.set_ylabel('Close Price (USD)')
+ax_ts.legend()
+ax_ts.xaxis.set_major_locator(mdates.AutoDateLocator())
+ax_ts.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+plt.setp(ax_ts.xaxis.get_majorticklabels(), rotation=45, ha='right')
+
+# ── Top-right: training vs validation loss per epoch ────────────────────────
+ax_loss = fig.add_subplot(gs[0, 3])
+epochs_range = range(1, num_epochs + 1)
+ax_loss.plot(epochs_range, train_losses, label='Train', color='steelblue', linewidth=1.5)
+ax_loss.plot(epochs_range, val_losses,   label='Val',   color='tomato',    linewidth=1.5, linestyle='--')
+ax_loss.set_title('Loss per Epoch')
+ax_loss.set_xlabel('Epoch')
+ax_loss.set_ylabel('MSE Loss')
+ax_loss.legend()
+
+# ── Bottom row: one panel per metric ────────────────────────────────────────
+metric_info = [
+    # (label,  value,   bar colour,  subtitle)
+    ('MSE',  mse,  '#e74c3c', 'Mean Squared Error\nAvg of squared errors  (USD²)\nPenalises large errors heavily'),
+    ('RMSE', rmse, '#e67e22', 'Root Mean Squared Error\nSame unit as target  (USD)\n"Average" dollar error'),
+    ('MAE',  mae,  '#3498db', 'Mean Absolute Error\nAvg absolute deviation  (USD)\nRobust to outliers'),
+    ('MAPE', mape, '#27ae60', 'Mean Abs Percentage Error\nRelative error  (%)\nScale-independent'),
+]
+
+for col, (label, value, color, subtitle) in enumerate(metric_info):
+    ax = fig.add_subplot(gs[1, col])
+    bar = ax.bar([label], [value], color=color, width=0.45, zorder=3)
+    ax.set_title(subtitle, fontsize=7.5, pad=6)
+    ax.set_ylim(0, value * 1.35)
+    ax.yaxis.grid(True, linestyle='--', alpha=0.6, zorder=0)
+    unit = ' %' if label == 'MAPE' else ''
+    ax.text(
+        0, value + value * 0.04,
+        f'{value:.3f}{unit}',
+        ha='center', va='bottom',
+        fontsize=11, fontweight='bold', color=color,
+    )
+    ax.set_xticks([])
+
 plt.show()
