@@ -191,9 +191,18 @@ def validate_one_epoch():
     return avg_loss_across_batches
 
 learning_rate = 1e-03
-num_epochs = 10
+num_epochs = 120
 loss_function = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+
+# Early stopping
+# patience  : how many consecutive epochs without improvement before stopping
+# min_delta : minimum decrease in val loss that counts as an improvement
+patience = 5
+min_delta = 1e-4
+best_val_loss = float('inf')
+epochs_no_improve = 0
+best_model_state = None
 
 train_losses = []
 val_losses   = []
@@ -203,6 +212,22 @@ for epoch in range(num_epochs):
     val_loss   = validate_one_epoch()
     train_losses.append(train_loss)
     val_losses.append(val_loss)
+
+    if val_loss < best_val_loss - min_delta:
+        best_val_loss = val_loss
+        epochs_no_improve = 0
+        best_model_state = dc(model.state_dict())
+    else:
+        epochs_no_improve += 1
+        if epochs_no_improve >= patience:
+            print(f'Early stopping triggered after epoch {epoch + 1}'
+                  f'(no improvement for {patience} consecutive epochs)')
+            break
+
+# restore the weights from the best epoch
+if best_model_state is not None:
+    model.load_state_dict(best_model_state)
+    print(f'Restored best model (val loss = {best_val_loss:.6f})\n')
 
 # ─── Metrics ────────────────────────────────────────────────────────────────
 # The scaler was fit on the full (n, lookback+1) matrix, so to invert just the
@@ -273,7 +298,7 @@ plt.setp(ax_ts.xaxis.get_majorticklabels(), rotation=45, ha='right')
 
 # ── Top-right: training vs validation loss per epoch ────────────────────────
 ax_loss = fig.add_subplot(gs[0, 3])
-epochs_range = range(1, num_epochs + 1)
+epochs_range = range(1, len(train_losses) + 1)
 ax_loss.plot(epochs_range, train_losses, label='Train', color='steelblue', linewidth=1.5)
 ax_loss.plot(epochs_range, val_losses,   label='Val',   color='tomato',    linewidth=1.5, linestyle='--')
 ax_loss.set_title('Loss per Epoch')
