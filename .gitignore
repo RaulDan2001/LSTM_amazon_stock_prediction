@@ -3,3 +3,66 @@ dataset
 
 # visual studio code files
 *.vscode
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# PyTorch model checkpoints
+*.pth
+*.pt
+checkpoints/
+
+# Dataset — tracked in the repo; uncomment to ignore entirely
+# dataset/
+
+# Generated figures — reproducible at runtime
+figs/*.png
+figs/*.jpg
+figs/*.svg
+figs/*.pdf
+
+# IDE / editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and profiling
+*.log
+*.prof
+
+# Coverage and test caches
+.coverage
+htmlcov/
+.pytest_cache/
+
+# mypy / pyright caches
+.mypy_cache/
+pyrightconfig.json
